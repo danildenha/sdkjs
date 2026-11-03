@@ -200,7 +200,6 @@
         let yMin = aMinRect[1];
         let xMax = aMinRect[2];
         let yMax = aMinRect[3];
-        let bSinglePoint = aAllPoints.length === 1;
 
         // calculate relative position of points inside the shape
         for (let nPath = 0; nPath < aShapePaths.length; nPath++) {
@@ -214,8 +213,8 @@
                 let nIndY = oPoint.y - yMin;
 
                 aTmpRelPoints.push({
-                    relX: bSinglePoint ? 0.5 : nIndX / (xMax - xMin),
-                    relY: bSinglePoint ? 0.5 : nIndY / (yMax - yMin)
+                    relX: inkRelative(nIndX, xMax - xMin),
+                    relY: inkRelative(nIndY, yMax - yMin)
                 });
             }
             
@@ -570,6 +569,12 @@
         return geometry;
     }
 
+    // A perfectly flat stroke has a zero span. Dividing by that span is NaN, and the
+    // path builder turns NaN into 0, which is the top or left edge of the annotation.
+    function inkRelative(nOffset, nSpan) {
+        return nSpan === 0 ? 0.5 : nOffset / nSpan;
+    }
+
     function getMinRect(aPoints) {
         let xMax = aPoints[0].x, yMax = aPoints[0].y, xMin = xMax, yMin = yMax;
         for(let i = 1; i < aPoints.length; i++)
@@ -599,6 +604,7 @@
 
     window["AscPDF"].isSinglePointInk  = isSinglePointInk;
     window["AscPDF"].singlePointInkDot = singlePointInkDot;
+    window["AscPDF"].inkRelative       = inkRelative;
     window["AscPDF"].generateGeometry  = generateGeometry;
     window["AscPDF"].fillShapeByPoints  = fillShapeByPoints;
     window["AscPDF"].initShape  = initShape;
