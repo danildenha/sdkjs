@@ -60,6 +60,8 @@ assert.strictEqual(commands[2][0], 1);
 assert.ok(commands.filter((command) => command[0] === 5).length === 4);
 assert.strictEqual(commands[commands.length - 1][0], 6);
 
-// A flat stroke still uses the axis division. Only a single point is pinned to the center.
-assert.ok(inkSource.indexOf("bSinglePoint ? 0.5 : nIndX / (xMax - xMin)") > 0);
-assert.ok(inkSource.indexOf("bSinglePoint ? 0.5 : nIndY / (yMax - yMin)") > 0);
+// A one-point path has no span on either axis. inkRelative maps a zero span
+// to 0.5, so the dot stays centered, and a flat multi-point stroke stays on
+// its drawn axis instead of dividing by zero.
+assert.ok(inkSource.indexOf("relX: inkRelative(nIndX, xMax - xMin)") > 0);
+assert.ok(inkSource.indexOf("relY: inkRelative(nIndY, yMax - yMin)") > 0);
